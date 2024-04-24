@@ -1,12 +1,12 @@
 {
-    "name": "ME461_LABS_Container",
+    "name": "Glados_PC_Development_Container",
     "privileged": true,
     "build": {
-        "dockerfile": "full.Dockerfile",
+        "dockerfile": "pc.Dockerfile",
         "context": "../.."
     },
-    "workspaceFolder": "/home/RobotDegilimLabs/ME461LABS_ws",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/RobotDegilimLabs,type=bind,consistency=cached",
+    "workspaceFolder": "/home/glados/mnt/glados_ws",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/glados/mnt,type=bind,consistency=cached",
     "containerEnv": {
         "DISPLAY": "${env:DISPLAY}",
         "NVIDIA_VISIBLE_DEVICES": "all",
@@ -21,7 +21,7 @@
         "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
         "source=/dev,target=/dev,type=bind,consistency=cached"
     ],
-    "postCreateCommand": "colcon build --symlink-install && echo 'source /home/RobotDegilimLabs/ME461LABS_ws/install/setup.bash' >> /home/me461/.bashrc",
+    "postCreateCommand": "colcon build --symlink-install; echo 'source /home/glados/mnt/glados_ws/install/setup.bash' >> /home/glados/.bashrc",
     "customizations": {
         "vscode": {
             "extensions": [
