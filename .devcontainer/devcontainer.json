@@ -1,0 +1,37 @@
+{
+    "name": "ME461_LABS_Container",
+    "privileged": true,
+    "build": {
+        "dockerfile": "full.Dockerfile",
+        "context": "../.."
+    },
+    "workspaceFolder": "/home/RobotDegilimLabs/ME461LABS_ws",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/RobotDegilimLabs,type=bind,consistency=cached",
+    "containerEnv": {
+        "DISPLAY": "${env:DISPLAY}",
+        "NVIDIA_VISIBLE_DEVICES": "all",
+        "NVIDIA_DRIVER_CAPABILITIES": "all"
+    },
+    "runArgs": [
+        "--net=host",
+        "--gpus",
+        "all"
+    ],
+    "mounts": [
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+        "source=/dev,target=/dev,type=bind,consistency=cached"
+    ],
+    "postCreateCommand": "colcon build --symlink-install && echo 'source /home/RobotDegilimLabs/ME461LABS_ws/install/setup.bash' >> /home/me461/.bashrc",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "donjayamanne.python-extension-pack",
+                "ms-iot.vscode-ros",
+                "formulahendry.code-runner",
+                "pkief.material-icon-theme"
+            ]
+        }
+    }
+}

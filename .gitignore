@@ -1,0 +1,15 @@
+# Python bytecode files
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# ROS2 build directories
+**/build/
+**/install/
+**/log/
+
+# Colcon custom files
+**/COLCON_IGNORE
+
+### VisualStudioCode ###
+**/.vscode/
