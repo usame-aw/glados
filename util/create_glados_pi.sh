@@ -18,6 +18,8 @@ docker run -d \
     sleep infinity
 
 #extra convenient stuff
+docker exec glados-pi bash -c "chmod 777 /dev/ttyUSB0" 
+docker exec glados-pi bash -c "colcon build --symlink-install"
 docker exec glados-pi bash -c "echo 'source /opt/ros/humble/install/setup.bash' >> /home/glados/.bashrc"
 docker exec glados-pi bash -c "echo 'source /home/glados/mnt/glados_ws/install/setup.bash' >> /home/glados/.bashrc"
 docker exec glados-pi bash -c "echo 'export PATH=\$PATH:/home/glados/mnt/util/' >> /home/glados/.bashrc"

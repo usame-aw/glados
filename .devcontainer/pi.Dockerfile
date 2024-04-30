@@ -1,4 +1,4 @@
-FROM osrf/ros:humble-desktop-full
+FROM ros:humble-ros-base
 
 # Setup User information 
 ARG USERNAME=glados
@@ -13,7 +13,7 @@ SHELL ["/bin/bash", "-c"]
 ENV SHELL=/bin/bash
 
 # Install General Dependencies
-RUN apt update; apt install build-essential \
+RUN apt update; apt install build-essential \ 
     sudo \
     -y nano \
     software-properties-common \
