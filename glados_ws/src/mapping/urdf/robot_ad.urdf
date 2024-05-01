@@ -1,0 +1,146 @@
+<?xml version="1.0"?>
+<robot name="rhex" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <link name="base_link" />
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="floor_link" />
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+    </joint>
+
+    <!-- Robot Base -->
+    <link name="wall_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/chassis_wall.dae"
+                    scale="1 1 1" />
+            </geometry>
+            <material name="yyy">
+                <color rgba="0 1.0 1.0 1.0" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/chassis_wall.dae"
+                    scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="floor_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/chassis.dae"
+                    scale="1 1 1" />
+            </geometry>
+            <material name="xxx">
+                <color rgba="1.0 1.0 1.0 1.0" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/chassis.dae"
+                    scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="ceiling_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/ceiling.dae"
+                    scale="1 1 1" />
+            </geometry>
+            <material name="xxx">
+                <color rgba="1.0 1.0 1.0 1.0" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/ceiling.dae"
+                    scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="floor_wall_joint" type="fixed">
+        <parent link="floor_link" />
+        <child link="wall_link" />
+        <origin xyz="0.0 0.0 0.045" rpy="0 0 0" />
+    </joint>
+
+    <joint name="floor_ceiling_joint" type="fixed">
+        <parent link="floor_link" />
+        <child link="ceiling_link" />
+        <origin xyz="0.0 0.0 0.0885" rpy="0 0 0" />
+    </joint>
+
+    <!--WHEELS-->
+
+    <link name="left_wheel_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/tire.dae"
+                    scale="1 1 1" />
+            </geometry>
+            <material name="xxx">
+                <color rgba="1.0 1.0 1.0 1.0" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/tire.dae"
+                    scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="left_wheel_joint" type="continuous">
+        <parent link="floor_link" />
+        <child link="left_wheel_link" />
+        <origin xyz="-0.109 0.0 0.0105" rpy="0 0 0" />
+        <axis xyz="1 0 0" />
+    </joint>
+
+    <link name="right_wheel_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 3.141592653589793" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/tire.dae"
+                    scale="1 1 1" />
+            </geometry>
+            <material name="xxx">
+                <color rgba="1.0 1.0 1.0 1.0" />
+            </material>
+        </visual>
+
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="file://$(find mapping)/urdf/meshes/tire.dae"
+                    scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="right_wheel_joint" type="continuous">
+        <parent link="floor_link" />
+        <child link="right_wheel_link" />
+        <origin xyz="0.109 0.0 0.0105" rpy="0 0 0.0" />
+        <axis xyz="1 0 0" />
+    </joint>
+
+</robot>
