@@ -51,6 +51,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
+RUN usermod -aG dialout ${USERNAME}
+
 USER $USERNAME
 
 # Install necessary python packages

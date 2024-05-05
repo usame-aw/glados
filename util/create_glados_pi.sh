@@ -20,7 +20,7 @@ docker run -d \
 #extra convenient stuff
 docker exec glados-pi bash -c "sudo chmod 777 /dev/ttyUSB0" 
 docker exec glados-pi bash -c "colcon build --symlink-install"
-docker exec glados-pi bash -c "echo 'source /opt/ros/humble/install/setup.bash' >> /home/glados/.bashrc"
+docker exec glados-pi bash -c "echo 'source /opt/ros/humble/setup.bash' >> /home/glados/.bashrc"
 docker exec glados-pi bash -c "echo 'source /home/glados/mnt/glados_ws/install/setup.bash' >> /home/glados/.bashrc"
 docker exec glados-pi bash -c "echo 'export PATH=\$PATH:/home/glados/mnt/util/' >> /home/glados/.bashrc"
 docker exec glados-pi bash -c "echo 'export ROS_DOMAIN_ID=21' >> /home/glados/.bashrc"
