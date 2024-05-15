@@ -60,7 +60,7 @@ class Teleoperate(Node):
     def command_actuators(self, msg):
         
         if self.rotate_lidar:
-            for i in range(-15, 15, 2):
+            for i in range(-20, 22, 2):
 
                 pwm_value = (218.45 * i + 32389 + 13630) / 9.4486 - self.offset
                 message = "4 0 0 0 0 " + str(int(pwm_value))
