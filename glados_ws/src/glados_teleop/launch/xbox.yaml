@@ -14,8 +14,9 @@ teleop_twist_joy_node:
       yaw: 0.058496
     scale_angular_turbo:
       yaw: 0.1715877
-
-    enable_button: 5  # RB 
+    
+    require_enable_button: false
+    # enable_button: 5  # RB
     enable_turbo_button: 0 # A
 
     inverted_reverse: true

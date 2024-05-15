@@ -33,9 +33,9 @@ def generate_launch_description():
      #    Node(
      #         package='tf2_ros',
      #         executable='static_transform_publisher',
-     #         arguments = ['--x', '1.0', '--y', '-0.109.', '--z', '0.10', 
+     #         arguments = ['--x', '1.0', '--y', '0.0', '--z', '0.10', 
      #                      '--yaw', '0.0', '--pitch', '0.0', '--roll', '0.0', 
-     #                      '--frame-id', 'chassis_link', '--child-frame-id', 'rotation_axis']
+     #                      '--frame-id', 'base_link', '--child-frame-id', 'rotation_point']
      #    ),
 
         Node(
