@@ -23,7 +23,7 @@ def generate_launch_description():
                 output='screen',
                 parameters=[{
                     'laser_scan_topic' : '/scan',
-                    'base_frame_id' : 'base_link',
+                    'base_frame_id' : 'base_footprint',
                     'freq' : 20.0}],
             ),
     ])

@@ -33,9 +33,7 @@ CLaserOdometry2DNode::CLaserOdometry2DNode(): Node("CLaserOdometry2DNode")
   odom_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(this);
   
   // ODOM Publishers
-  local_odom_pub  = this->create_publisher<nav_msgs::msg::Odometry>("/local_odom", 5);
-  partial_global_odom_pub  = this->create_publisher<nav_msgs::msg::Odometry>("/partial_global_odom", 5);
-  global_odom_pub  = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 5);
+  local_odom_pub  = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
   
   // Subscriptions
   
@@ -60,14 +58,24 @@ CLaserOdometry2DNode::CLaserOdometry2DNode(): Node("CLaserOdometry2DNode")
 
 void CLaserOdometry2DNode::zeroOut(){
   // init to 0
+
+    globalOdom.x = rf2o_ref.robot_pose_.translation()(0);
+    globalOdom.y = rf2o_ref.robot_pose_.translation()(1);
+    globalOdom.theta = rf2o::getYaw(rf2o_ref.robot_pose_.rotation());
+
     GT_pose_initialized = true;
-    initial_robot_pose.pose.pose.position.x = 0;
-    initial_robot_pose.pose.pose.position.y = 0;
+    initial_robot_pose.pose.pose.position.x = globalOdom.x;
+    initial_robot_pose.pose.pose.position.y = globalOdom.y;
     initial_robot_pose.pose.pose.position.z = 0;
-    initial_robot_pose.pose.pose.orientation.w = 0;
-    initial_robot_pose.pose.pose.orientation.x = 0;
-    initial_robot_pose.pose.pose.orientation.y = 0;
-    initial_robot_pose.pose.pose.orientation.z = 0;
+
+    tf2::Quaternion tf_quaternion;
+    tf_quaternion.setRPY(0.0, 0.0, globalOdom.theta);
+    geometry_msgs::msg::Quaternion quaternion = tf2::toMsg(tf_quaternion);
+    
+    initial_robot_pose.pose.pose.orientation.w = quaternion.w;
+    initial_robot_pose.pose.pose.orientation.x = quaternion.x;
+    initial_robot_pose.pose.pose.orientation.y = quaternion.y;
+    initial_robot_pose.pose.pose.orientation.z = quaternion.z;
 }
 
 void CLaserOdometry2DNode::resetOdom()
@@ -88,9 +96,11 @@ void CLaserOdometry2DNode::resetOdomCallBack(const sensor_msgs::msg::Joy::Shared
     LB 4
     RB 5
   */
+
   if (msg->buttons[2] == 1)
   {
     is_odom_reset = true; 
+    resetOdom();
   } 
 
   if (msg -> buttons[5] == 1){
@@ -125,7 +135,9 @@ void CLaserOdometry2DNode::laserCallBack(const sensor_msgs::msg::LaserScan::Shar
       setLaserPoseFromTf();
       rf2o_ref.init(last_scan, initial_robot_pose.pose.pose);
       rf2o_ref.first_laser_scan = false;
-      partial_global_publish();
+      
+      //partial_global_publish();
+      //global_publish();
     }
   }
 }
@@ -184,8 +196,8 @@ void CLaserOdometry2DNode::process()
     rf2o_ref.odometryCalculation(last_scan);
 
     local_publish();
-    partial_global_publish();
-    global_publish();
+    //partial_global_publish();
+    //global_publish();
 
     // Do not run on the same data!
     new_scan_available = false;
@@ -197,147 +209,39 @@ void CLaserOdometry2DNode::process()
 
 void CLaserOdometry2DNode::local_publish()
 {
-  // 1. publish odom as a topic 
+
   tf2::Quaternion tf_quaternion;
   tf_quaternion.setRPY(0.0, 0.0, rf2o::getYaw(rf2o_ref.robot_pose_.rotation()));
   geometry_msgs::msg::Quaternion quaternion = tf2::toMsg(tf_quaternion);
   
-  // compose odom msg
   nav_msgs::msg::Odometry odom;
   odom.header.stamp = rf2o_ref.last_odom_time;    // the time of the last scan used!
-  odom.header.frame_id = "local_odom";
+  odom.header.frame_id = "odom";
   
-  //set the position
   odom.pose.pose.position.x = rf2o_ref.robot_pose_.translation()(0);
   odom.pose.pose.position.y = rf2o_ref.robot_pose_.translation()(1);
   odom.pose.pose.position.z = 0.0;
   odom.pose.pose.orientation = quaternion;
   
-  //set the velocity
   odom.child_frame_id = base_frame_id;
   odom.twist.twist.linear.x = rf2o_ref.lin_speed;    //linear speed
   odom.twist.twist.linear.y = 0.0;
   odom.twist.twist.angular.z = rf2o_ref.ang_speed;   //angular speed
   
-  //publish the message
   local_odom_pub->publish(odom);
 
-}
 
-void CLaserOdometry2DNode::partial_global_publish()
-{
-    tf2::Quaternion tf_quaternion;
-    nav_msgs::msg::Odometry odom;
-    
-    odom.header.frame_id = "partial_global_odom";
-    odom.header.stamp = rf2o_ref.last_odom_time;
+  geometry_msgs::msg::TransformStamped odom_trans;
+  odom_trans.header.stamp = rf2o_ref.last_odom_time;
+  odom_trans.header.frame_id = "odom";
+  odom_trans.child_frame_id = "base_footprint";
+  
+  odom_trans.transform.translation.x = rf2o_ref.robot_pose_.translation()(0);
+  odom_trans.transform.translation.y = rf2o_ref.robot_pose_.translation()(1);
+  odom_trans.transform.translation.z = 0.0;
+  odom_trans.transform.rotation = quaternion;
 
-    if (is_odom_reset)
-    {
-
-      globalOdom.theta += rf2o::getYaw(rf2o_ref.robot_pose_.rotation());
-      globalOdom.theta = fmod(globalOdom.theta + M_PI, 2 * M_PI) - M_PI;
-      tf_quaternion.setRPY(0.0, 0.0, globalOdom.theta);
-      geometry_msgs::msg::Quaternion quaternion = tf2::toMsg(tf_quaternion);
-
-      globalOdom.x += rf2o_ref.robot_pose_.translation()(0);
-      globalOdom.y += rf2o_ref.robot_pose_.translation()(1);
-
-      odom.pose.pose.position.x = globalOdom.x;
-      odom.pose.pose.position.y = globalOdom.y;
-      odom.pose.pose.position.z = 0.0;
-      odom.pose.pose.orientation = quaternion;
-
-      is_odom_reset = false;
-      resetOdom();
-      done_partial = true;
-
-    } else {
-
-      tf_quaternion.setRPY(0.0, 0.0, globalOdom.theta);
-      geometry_msgs::msg::Quaternion quaternion = tf2::toMsg(tf_quaternion);
-
-      odom.pose.pose.position.x = globalOdom.x;
-      odom.pose.pose.position.y = globalOdom.y;
-      odom.pose.pose.position.z = 0.0;
-      odom.pose.pose.orientation = quaternion;
-
-    }
-
-    odom.child_frame_id = "partial_global_odom";
-    odom.twist.twist.linear.x = 0.0;    //linear speed
-    odom.twist.twist.linear.y = 0.0;
-    odom.twist.twist.angular.z = 0.0;   //angular speed
-    
-    partial_global_odom_pub->publish(odom);
-
-}
-
-void CLaserOdometry2DNode::global_publish()
-{
-    tf2::Quaternion tf_quaternion;
-    nav_msgs::msg::Odometry odom;
-    
-    odom.header.frame_id = "odom";
-    odom.header.stamp = rf2o_ref.last_odom_time;
-
-    geometry_msgs::msg::TransformStamped odom_trans;
-    odom_trans.header.stamp = rf2o_ref.last_odom_time;
-    odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_link";
-
-    if (is_publish_global)
-    {
-
-      float yaw = globalOdom.theta + rf2o::getYaw(rf2o_ref.robot_pose_.rotation());
-      yaw = fmod(yaw + M_PI, 2 * M_PI) - M_PI;
-      tf_quaternion.setRPY(0.0, 0.0, yaw);
-      geometry_msgs::msg::Quaternion quaternion = tf2::toMsg(tf_quaternion);
-
-      odom.pose.pose.position.x = globalOdom.x + rf2o_ref.robot_pose_.translation()(0);
-      odom.pose.pose.position.y = globalOdom.y + rf2o_ref.robot_pose_.translation()(1);
-      odom.pose.pose.position.z = 0.0;
-      odom.pose.pose.orientation = quaternion;
-
-      odom_trans.transform.translation.x = globalOdom.x + rf2o_ref.robot_pose_.translation()(0);
-      odom_trans.transform.translation.y = globalOdom.y + rf2o_ref.robot_pose_.translation()(1);
-      odom_trans.transform.translation.z = 0.0;
-      odom_trans.transform.rotation = quaternion;
-
-      is_publish_global = false;
-      done_partial = false;
-      
-    } else if (was_moving == true && is_publish_global == false) {
-      
-      was_moving = false;
-      is_odom_reset = true;
-      done_partial = false; 
-      partial_global_publish();
-
-    } else if (done_partial){
-
-      tf_quaternion.setRPY(0.0, 0.0, globalOdom.theta);
-      geometry_msgs::msg::Quaternion quaternion = tf2::toMsg(tf_quaternion);
-
-      odom.pose.pose.position.x = globalOdom.x;
-      odom.pose.pose.position.y = globalOdom.y;
-      odom.pose.pose.position.z = 0.0;
-      odom.pose.pose.orientation = quaternion;
-
-      odom_trans.transform.translation.x = globalOdom.x;
-      odom_trans.transform.translation.y = globalOdom.y;
-      odom_trans.transform.translation.z = 0.0;
-      odom_trans.transform.rotation = quaternion;
-    }
-
-    odom.child_frame_id = "odom";
-    odom.twist.twist.linear.x = 0.0;    //linear speed
-    odom.twist.twist.linear.y = 0.0;
-    odom.twist.twist.angular.z = 0.0;   //angular speed
-    
-    global_odom_pub->publish(odom);
-    odom_broadcaster->sendTransform(odom_trans);
-
+  odom_broadcaster->sendTransform(odom_trans);
 }
 
 /* MAIN */
