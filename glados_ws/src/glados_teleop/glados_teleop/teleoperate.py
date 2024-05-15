@@ -19,7 +19,7 @@ class Teleoperate(Node):
         
         super().__init__('teleoperator_node')
         
-        # self.talker = Serial_Talker() 
+        self.talker = Serial_Talker() 
         
         self.clock = Clock()
         
@@ -66,13 +66,13 @@ class Teleoperate(Node):
                 message = "4 0 0 0 0 " + str(int(pwm_value))
                 self.get_logger().info(message)
 
-                # self.talker.send(message)
+                self.talker.send(message)
                 self.clock.sleep_for(self.wait_tf)
                 
                 self.pub_lidar_frame(-i * math.pi / 180)
                 self.clock.sleep_for(self.wait_rotation)
 
-            # self.talker.send(f"4 0 0 0 0 {self.zero}")  # reset lidar after scanning sequence is done          
+            self.talker.send(f"4 0 0 0 0 {self.zero}")  # reset lidar after scanning sequence is done          
             self.rotate_lidar = False # allow movement if scanning is done 
         
         else:
@@ -110,7 +110,7 @@ class Teleoperate(Node):
             
             message = "3 " + str(dir_r) + " " + str(int(omega_r)) + " " + str(dir_l) + " " + str(int(omega_l)) + " 0"
             self.get_logger().info(message)
-            # self.talker.send(message) 
+            self.talker.send(message) 
 
     def pub_lidar_frame(self, theta):
         
@@ -160,9 +160,9 @@ class Teleoperate(Node):
         if joy_msg.buttons[4]:
             self.rotate_lidar = True
             
-    # def __del__(self):
-    #     if hasattr(self, 'serial_comm') and self.serial_comm is not None:
-    #         self.serial_comm.close()
+    def __del__(self):
+        if hasattr(self, 'serial_comm') and self.serial_comm is not None:
+            self.serial_comm.close()
 
 def main(args=None):
     rclpy.init(args=args)
