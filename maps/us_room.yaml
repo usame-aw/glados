@@ -1,0 +1,7 @@
+image: us_room.pgm
+mode: trinary
+resolution: 0.03
+origin: [-1.32, -2.42, 0]
+negate: 0
+occupied_thresh: 0.9
+free_thresh: 0.1
