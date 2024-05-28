@@ -76,7 +76,7 @@ class Teleoperate(Node):
                 self.get_logger().info(message)
 
                 self.talker.send(message)
-                time.sleep(0.25)               
+                time.sleep(0.5)               
                 self.pub_lidar_frame(-angle * math.pi / 180)
 
             self.talker.send(f"4 0 0 0 0 {self.zero}")  # reset lidar after scanning sequence is done          
