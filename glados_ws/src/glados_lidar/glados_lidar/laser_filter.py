@@ -29,7 +29,7 @@ class LaserScanFilter(Node):
     def filter(self, prefiltered_scan):
         
         self.dist_arr = np.array(prefiltered_scan.ranges)
-        self.dist_arr[675:850] = np.inf            
+        self.dist_arr[600:900] = np.inf            
         prefiltered_scan.ranges = self.dist_arr.tolist()
         self.publisher_.publish(prefiltered_scan)
         # self.dist_arr[self.dist_arr>3.2] = np.inf # distance filter 
