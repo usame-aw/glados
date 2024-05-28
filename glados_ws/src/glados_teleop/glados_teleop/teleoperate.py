@@ -47,22 +47,24 @@ class Teleoperate(Node):
         self.pwm_speed_ratio = 65535 / self.max_speed  
 
         # Lidar Params
-        self.wait_rotation = Duration(seconds=0.4
-                                      
-                                      )
-        self.wait_tf = Duration(seconds=0.1)
-        # self.beta0 = # linear fitting params  
-        # self.beta1 =  
+        self.wait_rotation = Duration(seconds=0.4)
+        
         self.offset = 46
         self.zero = 4824
+        self.beta_0 = -13630
+        self.beta_1 = 9.4486
+        
 
 
     def command_actuators(self, msg):
         
         if self.rotate_lidar:
+            
+            self.talker.send(f"3 0 0 0 0 {self.zero}") # stop motors before rotating lidar
+            
             for i in range(-20, 22, 2):
 
-                pwm_value = (218.45 * i + 32389 + 13630) / 9.4486 - self.offset
+                pwm_value = (218.45 * i + 32389 - self.beta_0) / self.beta_1 - self.offset
                 message = "4 0 0 0 0 " + str(int(pwm_value))
                 self.get_logger().info(message)
 
@@ -70,7 +72,6 @@ class Teleoperate(Node):
                 self.clock.sleep_for(self.wait_tf)
                 
                 self.pub_lidar_frame(-i * math.pi / 180)
-                self.clock.sleep_for(self.wait_rotation)
 
             self.talker.send(f"4 0 0 0 0 {self.zero}")  # reset lidar after scanning sequence is done          
             self.rotate_lidar = False # allow movement if scanning is done 
