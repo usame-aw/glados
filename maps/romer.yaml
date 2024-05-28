@@ -1,0 +1,7 @@
+image: romer.pgm
+mode: trinary
+resolution: 0.02
+origin: [-3.47, -5.73, 0]
+negate: 0
+occupied_thresh: 0.9
+free_thresh: 0.1
