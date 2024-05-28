@@ -1,5 +1,6 @@
 import math 
 import numpy as np
+import time
 
 import rclpy
 from rclpy.node import Node
@@ -69,14 +70,14 @@ class Teleoperate(Node):
             
             for angle in self.lidar_angles:
 
-                pwm_value = (218.45 * i + 32389 - self.beta_0) / self.beta_1 - self.offset
+                pwm_value = (218.45 * angle + 32389 - self.beta_0) / self.beta_1 - self.offset
                 
                 message = "4 0 0 0 0 " + str(int(pwm_value))
                 self.get_logger().info(message)
 
                 self.talker.send(message)
-                self.clock.sleep_for(self.wait_tf)                
-                self.pub_lidar_frame(-i * math.pi / 180)
+                time.sleep(0.25)               
+                self.pub_lidar_frame(-angle * math.pi / 180)
 
             self.talker.send(f"4 0 0 0 0 {self.zero}")  # reset lidar after scanning sequence is done          
             self.rotate_lidar = False # allow movement if scanning is done 
