@@ -24,6 +24,6 @@ def generate_launch_description():
                 parameters=[{
                     'laser_scan_topic' : '/scan',
                     'base_frame_id' : 'base_footprint',
-                    'freq' : 20.0}],
+                    'freq' : 8.0}],
             ),
     ])

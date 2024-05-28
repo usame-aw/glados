@@ -11,65 +11,56 @@
 
 #include <sensor_msgs/msg/joy.hpp>
 
-namespace rf2o {
-
-class CLaserOdometry2DNode : public rclcpp::Node
+namespace rf2o
 {
-public:
 
-  struct {
-    float x;
-    float y;
-    float theta;
-  } globalOdom;
+  class CLaserOdometry2DNode : public rclcpp::Node
+  {
+  public:
+    struct
+    {
+      float x;
+      float y;
+      float theta;
+    } globalOdom;
 
-  CLaserOdometry2DNode();
-  void process();
-  
-  bool setLaserPoseFromTf();
-  bool scan_available();
+    CLaserOdometry2DNode();
+    void process();
 
-  void resetOdom();
-  void zeroOut();
-  void local_publish();
-  void partial_global_publish(); 
-  void global_publish(); 
+    bool setLaserPoseFromTf();
+    bool scan_available();
 
+    void resetOdom();
+    void zeroOut();
+    void local_publish();
 
-  // Params & vars
-  CLaserOdometry2D    rf2o_ref;
-  bool                publish_tf, new_scan_available;
-  double              freq;
-  std::string         laser_scan_topic;
-  std::string         odom_topic;
-  std::string         base_frame_id;
-  std::string         odom_frame_id;
-  std::string         init_pose_from_topic;
+    // Params & vars
+    CLaserOdometry2D rf2o_ref;
+    bool publish_tf, new_scan_available;
+    double freq;
+    std::string laser_scan_topic;
+    std::string odom_topic;
+    std::string base_frame_id;
+    std::string odom_frame_id;
+    std::string init_pose_from_topic;
 
-  bool                is_odom_reset;
-  bool                is_publish_global;
-  bool                was_moving;
-  bool                done_partial;
+    sensor_msgs::msg::LaserScan last_scan;
+    bool GT_pose_initialized;
+    std::shared_ptr<tf2_ros::Buffer> buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+    std::unique_ptr<tf2_ros::TransformBroadcaster> odom_broadcaster;
+    nav_msgs::msg::Odometry initial_robot_pose;
 
-  sensor_msgs::msg::LaserScan                     last_scan;
-  bool                                            GT_pose_initialized;
-  std::shared_ptr<tf2_ros::Buffer>                buffer_;
-  std::shared_ptr<tf2_ros::TransformListener>     tf_listener_;  
-  std::unique_ptr<tf2_ros::TransformBroadcaster>  odom_broadcaster;
-  nav_msgs::msg::Odometry                         initial_robot_pose;
+    // Subscriptions & Publishers
+    rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub;
 
-  // Subscriptions & Publishers
-  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr  laser_sub;
-  
-  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr         local_odom_pub;
-  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr         partial_global_odom_pub;
-  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr         global_odom_pub;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr local_odom_pub;
 
-  rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr        xbox_sub;
-  
-  // CallBacks
-  void laserCallBack(const sensor_msgs::msg::LaserScan::SharedPtr new_scan);
-  void resetOdomCallBack(const sensor_msgs::msg::Joy::SharedPtr msg);
-};
+    rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr xbox_sub;
+
+    // CallBacks
+    void laserCallBack(const sensor_msgs::msg::LaserScan::SharedPtr new_scan);
+    void resetOdomCallBack(const sensor_msgs::msg::Joy::SharedPtr msg);
+  };
 
 }
